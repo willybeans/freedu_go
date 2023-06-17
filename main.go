@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -14,9 +15,14 @@ import (
 )
 
 type User struct {
-	ID       string // `json:"id"` //was int
+	ID       int // `json:"id"` //was int
 	Username string // `json:"username"`
 	Password string // `json:"-"`
+	Time 		 int
+	Firstname string
+	Lastname string
+	Email string
+	Age int
 }
 
 var db *sql.DB
@@ -80,9 +86,6 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-		// testing log 
-	log.Println(err)
-	log.Printf("NAME: %v| PASSWORD: %v| ID: %v\n",user.Username, user.Password, user.ID );
 
 	// Hash the user password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -91,8 +94,33 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get ID and time
+	var id int;
+
+	rows, err := db.Query("SELECT nextval('id_seq');")
+	if err != nil {
+		s := err.Error()
+		fmt.Printf("Failed to retreive sequence ID for user id\n s: %v", s)
+		http.Error(w, "Failed to register user", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(id)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	now := time.Now().Unix()
+
 	// Save the user to the database
-	_, err = db.Exec("INSERT INTO users (username, password) VALUES ($1, $2)", user.Username, hashedPassword)
+	_, err = db.Exec("INSERT INTO users (username, password, time_created, id, age, first_name, last_name, email) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", user.Username, hashedPassword, now, id, user.Age, user.Firstname, user.Lastname, user.Email)
 	if err != nil {
 		s := err.Error()
     fmt.Printf("type: %T; value: %q\n", s, s)
