@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -36,6 +40,16 @@ const (
 )
 
 func main() {
+	// Initialize the Chi router
+	router := chi.NewRouter()
+	// Middleware
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
+	// API routes
+	router.Get("/healthcheck", healthcheck)
+	router.Post("/register", registerHandler)
+	router.Post("/login", loginHandler)
+	
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 	"password=%s dbname=%s sslmode=disable",
 	host, port, user, password, dbname)
@@ -49,26 +63,56 @@ func main() {
 	defer db.Close() // defer pushes function call onto list, which is called after the surrounding function is complete. 
 	// this is commonly used to simply functions that perform various cleanup tasks, ie, closing the db here 
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
+	// Create a new context with cancellation
+	ctx, cancel := context.WithCancel(context.Background())
+
+	Ping(ctx)
+
+	// Create an HTTP server with the Chi router
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: router,
 	}
-	// Initialize the Chi router
-	router := chi.NewRouter()
 
-	// Middleware
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer)
+	// Start the server in a separate goroutine
+	go func() {
+		err := server.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
 
-	// API routes
-	router.Get("/healthcheck", healthcheck)
-	router.Post("/register", registerHandler)
-	router.Post("/login", loginHandler)
+	log.Println("Server started")
 
-	// Run the server
-	err = http.ListenAndServe(":8080", router)
+	// Wait for interrupt or termination signal to gracefully shut down the server
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	<-stop
+
+	// Call cancel to stop ongoing requests and cleanup resources
+	cancel()
+
+	// Create a deadline to wait for outstanding requests to complete before shutting down
+	ctxShutdown, cancelShutdown := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelShutdown()
+
+	// Shut down the server gracefully with the specified timeout
+	err = server.Shutdown(ctxShutdown)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	log.Println("Server stopped")
+}
+
+// Ping the database to verify DSN provided by the user is valid and the
+// server accessible. If the ping fails exit the program with an error.
+func Ping(ctx context.Context) {
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
+	if err := db.PingContext(ctx); err != nil {
+		log.Fatalf("unable to connect to database: %v", err)
 	}
 }
 
