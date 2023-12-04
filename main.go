@@ -105,11 +105,42 @@ func scrape(w http.ResponseWriter, r *http.Request) {
 	//heading
 	// fmt.Println(page.MustElement("#Inhalt > article > header > div > div").MustEval(`() => this.innerText`).String())
 	heading := page.MustElement("#Inhalt > article > header > div > div").MustEval(`() => this.innerText`).String()
-	fmt.Printf(heading)
+	// fmt.Printf(heading)
+
+	// main := page.MustElement("main").MustEval(`() => {
+	// 	return this.innerText
+	// 	}`)
+	// fmt.Printf("%+v\n", main)
+
+	main := page.MustElements("header")
+	fmt.Printf("%+v\n", main)
+
+	// main := page.MustSearch("main").MustEval(`() => {
+	// 	return this
+	// 	}`)
+	// fmt.Printf("____  TEST  ____ \n%+v\n %T", main, main)
+	// 	var res
+	// 	err := json.Unmarshal([]byte(str), &res)
+	// 	fmt.Println(err)
+	// 	fmt.Println(res)
+	// 	for _, m := range main {
+
+	//     // m is a map[string]interface.
+	//     // loop over keys and values in the map.
+	//     for k, v := range m {
+	//         fmt.Println(k, "value is", v)
+	//     }
+	// }
+
+	// header := page.MustElement("heading")
+	// fmt.Printf("%+v\n", header)
+
+	text := page.MustElements("p")
+	fmt.Printf("%+v\n %T", text, text)
 	//body
 	// fmt.Println(page.MustElement("#Inhalt > article > div.relative > section.relative > div > div").MustEval(`() => this.innerText`).String())
 	body := page.MustElement("#Inhalt > article > div.relative > section.relative > div > div").MustEval(`() => this.innerText`).String()
-	fmt.Printf(body)
+	// fmt.Printf(body)
 
 	json.NewEncoder(w).Encode(map[string]string{"heading": heading, "body": body})
 }
