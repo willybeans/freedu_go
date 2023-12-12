@@ -4,6 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type User struct {
@@ -19,32 +22,30 @@ type User struct {
 
 var database *sql.DB
 
-// change to .env
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "password"
-	dbname   = "lang_api"
-)
-
-// Connect to the "world" database
 func dbConnect() {
-	// replace "root" and "password" with your database login credentials
-	// db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/world")
-	// if err != nil {
-	// 	log.Println("Could not connect!")
-	// }
-	// database = db
-	// log.Println("Connected.")
 
-	//////////////////
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+	// envFile, _ := godotenv.Read("../.env")
+	// dbname := envFile["db_name"]
+	// password := envFile["db_pass"]
+	// user := envFile["db_user"]
+	// host := envFile["db_host"]
+	// port := envFile["db_port"]
+
+	dbname := os.Getenv("db_name")
+	password := os.Getenv("db_pass")
+	user := os.Getenv("db_user")
+	host := os.Getenv("db_host")
+	port := os.Getenv("db_port") //this comes in as a string :(
+
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 	// Connect to the PostgreSQL database
-
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		log.Println("Could not connect to DB!")
