@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"database/sql"
@@ -22,7 +22,7 @@ type User struct {
 
 var database *sql.DB
 
-func dbConnect() {
+func DbConnect() {
 
 	err := godotenv.Load("../.env")
 	if err != nil {
@@ -51,7 +51,7 @@ func dbConnect() {
 		log.Println("Could not connect to DB!")
 		log.Fatal(err)
 	}
-	defer db.Close() // defer pushes function call onto list, which is called after the surrounding function is complete.
+	// defer db.Close() // defer pushes function call onto list, which is called after the surrounding function is complete.
 	// this is commonly used to simply functions that perform various cleanup tasks, ie, closing the db here
 
 	err = db.Ping()
@@ -61,8 +61,14 @@ func dbConnect() {
 
 	database = db
 	log.Println("Connected to DB.")
+	// return db
+
 }
 
 func DB() *sql.DB {
 	return database
+}
+
+func CloseDB() error {
+	return database.Close()
 }

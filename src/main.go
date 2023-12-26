@@ -1,6 +1,7 @@
 package main
 
 import (
+	"api/internal/database"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -20,7 +21,8 @@ func main() {
 
 	// Init server
 	router := NewRouter()
-	dbConnect()
+	database.DbConnect()
+	defer database.CloseDB()
 	s := NewServer(router)
 	err := s.httpServer.ListenAndServe()
 	if err != nil {
