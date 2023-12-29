@@ -12,14 +12,11 @@ func NewRouter() *chi.Mux {
 	router.Get("/healthcheck", handlers.Healthcheck)
 	router.Post("/login", handlers.LoginHandler)
 	router.Post("/image", handlers.ImageHandler)
+	router.Get("/scrape", handlers.ScrapeHandler)
 
 	// s.router.HandleFunc("/api/", s.handleAPI())
 	// s.router.HandleFunc("/about", s.handleAbout())
 	// s.router.HandleFunc("/", s.handleIndex())
 
-	// // API routes
-	// router.Get("/healthcheck", healthcheck)
-	// router.Get("/scrape", scrape)
-	// router.Post("/register", registerHandler)
 	return router
 }
