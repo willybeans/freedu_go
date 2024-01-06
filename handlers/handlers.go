@@ -25,7 +25,8 @@ func ImageHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// If there is an error that means form is empty. Return nil for err in order
 		// to validate result as required.
-		fmt.Println("error at reading form")
+		fmt.Println("error at reading form", err)
+		return
 	}
 	defer file.Close()
 
@@ -33,6 +34,7 @@ func ImageHandler(w http.ResponseWriter, r *http.Request) {
 	tempfile, err := os.CreateTemp("", "ocrserver"+"-")
 	if err != nil {
 		fmt.Println("error at temp")
+		return
 	}
 	defer func() {
 		tempfile.Close()
@@ -67,6 +69,7 @@ func ImageHandler(w http.ResponseWriter, r *http.Request) {
 		pageText, err := client.Text()
 		if err != nil {
 			fmt.Println("error at text out: ", err)
+			return
 		}
 		json.NewEncoder(w).Encode(map[string]string{"message": pageText})
 
