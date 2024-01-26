@@ -29,18 +29,11 @@ func DbConnect() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// envFile, _ := godotenv.Read("../.env")
-	// dbname := envFile["db_name"]
-	// password := envFile["db_pass"]
-	// user := envFile["db_user"]
-	// host := envFile["db_host"]
-	// port := envFile["db_port"]
-
-	dbname := os.Getenv("db_name")
-	password := os.Getenv("db_pass")
-	user := os.Getenv("db_user")
-	host := os.Getenv("db_host")
-	port := os.Getenv("db_port") //this comes in as a string :(
+	dbname := os.Getenv("DB_NAME")
+	password := os.Getenv("DB_PASSWORD")
+	user := os.Getenv("DB_USER")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT") //this comes in as a string :(
 
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -51,8 +44,6 @@ func DbConnect() {
 		log.Println("Could not connect to DB!")
 		log.Fatal(err)
 	}
-	// defer db.Close() // defer pushes function call onto list, which is called after the surrounding function is complete.
-	// this is commonly used to simply functions that perform various cleanup tasks, ie, closing the db here
 
 	err = db.Ping()
 	if err != nil {
