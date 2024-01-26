@@ -7,37 +7,19 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// var db *sql.DB
-
-// const (
-// 	host     = "localhost"
-// 	port     = 5432
-// 	user     = "postgres"
-// 	password = "password"
-// 	dbname   = "lang_api"
-// )
-
 func main() {
 
-	// Init server
+	// Init Router
 	router := NewRouter()
+	// Init Database
 	database.DbConnect()
 	defer database.CloseDB()
 	s := NewServer(router)
+	// Init Server
 	err := s.httpServer.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Middleware
-	// router.Use(middleware.Logger)
-	// router.Use(middleware.Recoverer)
-
-	// Run the server
-	// err = http.ListenAndServe(":8080", router)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 }
 
 // func registerHandler(w http.ResponseWriter, r *http.Request) {
