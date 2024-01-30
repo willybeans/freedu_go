@@ -22,13 +22,13 @@ fi
 # SQL statements to create the database and table
 SQL_CREATE_DB="CREATE DATABASE $DB_NAME;"
 SQL_CREATE_TABLE_USERS="CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
     time_created TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );"
 SQL_CREATE_TABLE_CONTENT="CREATE TABLE content (
-    content_id SERIAL PRIMARY KEY,
-    author_id INTEGER REFERENCES users(user_id),
+    id SERIAL PRIMARY KEY,
+    author_id INTEGER REFERENCES users(id),
     title VARCHAR(255) NOT NULL,
     body_content TEXT,
     time_created TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
@@ -49,7 +49,7 @@ psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_TAB
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_INSERT_DATA"
 
 # Create mock data with csv file
-CSV_FILE="MOCK_DATA.csv"
-psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY content FROM '$CSV_FILE' delimiter ',' CSV HEADER;"
+# CSV_FILE="MOCK_DATA.csv"
+# psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY content FROM '$CSV_FILE' delimiter ',' CSV HEADER;"
 # in psql you can also run this command: 
 #  \copy content from '/Users/willwedmedyk/Downloads/MOCK_DATA.csv' delimiter ',' CSV HEADER;

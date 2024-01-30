@@ -14,9 +14,14 @@ func NewRouter() *chi.Mux {
 	router.Post("/image", handlers.ImageHandler)
 	router.Get("/scrape", handlers.ScrapeHandler)
 
-	// s.router.HandleFunc("/api/", s.handleAPI())
-	// s.router.HandleFunc("/about", s.handleAbout())
-	// s.router.HandleFunc("/", s.handleIndex())
+	router.Get("/getContent", handlers.GetContentHandler)
+	router.Get("/getAllContent", handlers.GetAllContentHandler)
+	router.Post("/makeNewContent", handlers.NewContentHandler)
+	router.Put("/updateContent", handlers.UpdateContentHandler)
+	router.Delete("/deleteContent", handlers.DeleteContentHandler)
 
+	// Middleware
+	// router.Use(middleware.Logger)
+	// router.Use(middleware.Recoverer)
 	return router
 }

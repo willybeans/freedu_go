@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-rod/rod"
+	_ "github.com/lib/pq"
 	"github.com/otiai10/gosseract/v2"
 )
 
@@ -100,7 +101,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ScrapeHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
 	// https://www.spiegel.de/international/world/escalating-violence-radical-settlers-on-the-west-bank-see-an-opportunity-a-9499f824-9b39-4739-b6db-36772bc2bb99
 	// Decode the request body into the User struct
 	url := r.URL.Query().Get("url")
@@ -112,5 +112,7 @@ func ScrapeHandler(w http.ResponseWriter, r *http.Request) {
 	page := browser.MustPage(url).MustWaitStable()
 	body := page.MustElement("main").MustEval(`() => this.innerText`).String()
 	heading := page.MustElement("h1").MustEval(`() => this.innerText`).String()
+
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"heading": heading, "body": body})
 }
