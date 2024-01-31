@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"api/internal/database"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -77,27 +76,6 @@ func ImageHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		json.NewEncoder(w).Encode(map[string]string{"message": ErrorImage})
 	}
-}
-
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("test login")
-	rows, err := database.DB().Query("SELECT * FROM users")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer rows.Close()
-
-	type Users struct {
-		name         string
-		first        string
-		last         string
-		time_created string
-	}
-	fmt.Printf("%+v\n", rows)
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "login handler fired!"})
 }
 
 func ScrapeHandler(w http.ResponseWriter, r *http.Request) {

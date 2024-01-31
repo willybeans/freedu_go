@@ -10,7 +10,6 @@ func NewRouter() *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Get("/healthcheck", handlers.Healthcheck)
-	router.Post("/login", handlers.LoginHandler)
 	router.Post("/image", handlers.ImageHandler)
 	router.Get("/scrape", handlers.ScrapeHandler)
 
