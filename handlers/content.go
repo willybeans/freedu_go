@@ -85,18 +85,17 @@ func NewContentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := database.DB().Exec("INSERT INTO content (title, body_content, author_id) VALUES ($1, $2, $3)", newContent.Title, newContent.BodyContent, newContent.Author_ID)
+	var content Content
+	query := database.DB().QueryRow("INSERT INTO content (title, body_content, author_id) VALUES ($1, $2, $3) RETURNING *", newContent.Title, newContent.BodyContent, newContent.Author_ID)
+	err := query.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.TimeCreated)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	id, _ := result.LastInsertId()
-	println("", id)
-	// newContent.Author_ID = int(id) // not convinced this is needed
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(newContent)
+	json.NewEncoder(w).Encode(content)
 }
 
 func UpdateContentHandler(w http.ResponseWriter, r *http.Request) {
