@@ -16,6 +16,7 @@ fi
 # CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 # uncomment if using psql version < 13
 
+# Write these values into a .env file, or uncomment these lines
 # DB_HOST="localhost"
 # DB_PORT="5432"
 # DB_NAME="lang_api"
@@ -60,7 +61,6 @@ SQL_CREATE_MESSAGES="CREATE TABLE messages (
   content TEXT NOT NULL,
   sent_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );"
-
 SQL_INSERT_DATA="INSERT INTO users (id, username) VALUES
   ('d2792a62-86a4-4c49-a909-b1e762c683a3', 'johnny_mnemonic'),
   ('fc1b7d29-6aeb-432b-9354-7e4c65f15d4e', 'bob_loblaw'),
@@ -77,8 +77,6 @@ psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_TAB
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_TABLE_CHAT_ROOMS"
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_CHAT_ROOM_PARTICIPANT"
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_MESSAGES"
-
-
 
 # Create default user
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_INSERT_DATA"
