@@ -25,7 +25,7 @@ This api is built to support the React Native project [here](https://github.com/
 1. Fork on github for cleanliness
 2. Clone your fork locally (make sure to [pull from this parent project](https://stackoverflow.com/questions/13828230/pulling-changes-from-fork-parent-in-git) instead of your branch, otherwise you wont get the current git state)
 
-   - `git clone git@github.com:<my-github-name>/lang_api.git`
+   - `git clone git@github.com:<my-github-name>/lang-api.git`
 
 3. [Setup Golang](https://go.dev/doc/install) and also install the vscode go language support extension
 4. setup PostgreSQL with either [downloading](https://www.postgresql.org/download/) or homebrew
