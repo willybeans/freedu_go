@@ -23,15 +23,15 @@ This api is built to support the React Native project [here](https://github.com/
 ## Set Up:
 
 1. Fork on github for cleanliness
-2. Clone your fork locally (make sure to (pull from this parent project)[https://stackoverflow.com/questions/13828230/pulling-changes-from-fork-parent-in-git] instead of your branch, otherwise you wont get the current git state)
+2. Clone your fork locally (make sure to [pull from this parent project](https://stackoverflow.com/questions/13828230/pulling-changes-from-fork-parent-in-git) instead of your branch, otherwise you wont get the current git state)
 
    - `git clone git@github.com:<my-github-name>/lang_api.git`
 
-3. (Setup Golang)[https://go.dev/doc/install] and also install the vscode go language support extension
-4. setup PostgreSQL with either (downloading)[https://www.postgresql.org/download/] or homebrew
+3. [Setup Golang](https://go.dev/doc/install) and also install the vscode go language support extension
+4. setup PostgreSQL with either [downloading](https://www.postgresql.org/download/) or homebrew
 5. You will need to add a `.env` file to the root of your project in order to allow the server to connect with psql. you can copy the commented out values from `./create_database.sh` into a `.env` file or you can write your own. Making sure to replace "your_database_name", "your_username", and "your_password" with your actual PostgreSQL database credentials, ensure that you have the psql command-line tool installed on your system
 6. We now have to configure the `create_database.sh` file, and make it executable by running `chmod +x create_database.sh` in the terminal. Then you can execute the script from the root using `./create_database.sh` which will populate your psql instance with the appropriate database and tables
-7. If you intend on using the tesseract endpoint, you will need to follow the (setup instructions)[https://github.com/otiai10/gosseract?tab=readme-ov-file#installation] for a local version of tesseract, otherwise the page scraping will not work
+7. If you intend on using the tesseract endpoint, you will need to follow the [setup instructions](https://github.com/otiai10/gosseract?tab=readme-ov-file#installation) for a local version of tesseract, otherwise the page scraping will not work
 
 ## To Run
 
