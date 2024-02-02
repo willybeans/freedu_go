@@ -1,6 +1,3 @@
-## Contribution Guidlines:
-
-
 ### Goal of project:
 
 This api is built to support the React Native project [here](https://github.com/willybeans/e-reader-mvp). It is designed to provide users the ability to create and share language learning content with one another. Most importantly it provides a space where someone can create their own language learning content themselves. Stephen Krashens theory of language learning is the driving influence behind the design and features that have been implemented in this application
@@ -19,6 +16,9 @@ This api is built to support the React Native project [here](https://github.com/
 - Golang API using Chi for routing
 - Leverages tesseract wrapper `gosseract` for page scraping
 - Using PostgreSQL for DB
+
+
+## Contribution Guidlines:
 
 ## Set Up:
 
