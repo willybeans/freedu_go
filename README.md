@@ -17,7 +17,6 @@ This api is built to support the React Native project [here](https://github.com/
 - Leverages tesseract wrapper `gosseract` for page scraping
 - Using PostgreSQL for DB
 
-
 ## Contribution Guidlines:
 
 ## Set Up:
@@ -32,11 +31,12 @@ This api is built to support the React Native project [here](https://github.com/
 5. You will need to add a `.env` file to the root of your project in order to allow the server to connect with psql. you can copy the commented out values from `./create_database.sh` into a `.env` file or you can write your own. Making sure to replace "your_database_name", "your_username", and "your_password" with your actual PostgreSQL database credentials, ensure that you have the psql command-line tool installed on your system
 6. We now have to configure the `create_database.sh` file, and make it executable by running `chmod +x create_database.sh` in the terminal. Then you can execute the script from the root using `./create_database.sh` which will populate your psql instance with the appropriate database and tables
 7. If you intend on using the tesseract endpoint, you will need to follow the [setup instructions](https://github.com/otiai10/gosseract?tab=readme-ov-file#installation) for a local version of tesseract, otherwise the page scraping will not work
+8. Install air to allow for hotreloading by pasting this into your terminal `go install github.com/cosmtrek/air@latest
+`
 
 ## To Run
 
-- making sure psql is running, go to `./src/`, open a terminal, and run the command:
-  - server: `go run .`
+- making sure psql is running, open a terminal in root dir, and run the command `air`
 
 ### Your first pull request
 

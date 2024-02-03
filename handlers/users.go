@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"api/internal/database"
 	"database/sql"
 	"encoding/json"
 	"net/http"
+
+	"github.com/willybeans/freedu_go/database"
 )
 
 type User_ID struct {
