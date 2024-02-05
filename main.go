@@ -19,9 +19,7 @@ func main() {
 	// Init Server
 	err := s.httpServer.ListenAndServe()
 	if err != nil {
-		// log.Fatal(err)
-		l.Fatal().
-			// Err(http.ListenAndServe(":"+port, mux)).
-			Msg("App Server Closed")
+		l.Error().Err(err).Msg("server error")
+		l.Fatal().Msg("App Server Closed")
 	}
 }

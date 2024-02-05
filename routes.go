@@ -13,19 +13,13 @@ import (
 func NewRouter() *chi.Mux {
 
 	router := chi.NewRouter()
-	//"github.com/rs/cors"
-	// router.Use(cors.Default().Handler)
-	// A good base middleware stack
-	router.Use(middleware.RequestID)
-	router.Use(middleware.RealIP)
-	// router.Use(middleware.Logger(Logger))
-	// This middleware will catch and treat panics
-	// router.Use(middleware.Recoverer(Logger))
 
 	// Middleware
+	//"github.com/rs/cors"
+	// router.Use(cors.Default().Handler)
+	router.Use(middleware.RequestID)
+	router.Use(middleware.RealIP)
 	router.Use(logger.RequestLogger)
-	// router.Use(middleware.Recoverer(logger.RequestLogger))
-
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
