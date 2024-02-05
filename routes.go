@@ -1,13 +1,29 @@
 package main
 
 import (
+	"time"
+
 	"github.com/willybeans/freedu_go/handlers"
+	"github.com/willybeans/freedu_go/logger"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
 func NewRouter() *chi.Mux {
+
 	router := chi.NewRouter()
+
+	// Middleware
+	//"github.com/rs/cors"
+	// router.Use(cors.Default().Handler)
+	router.Use(middleware.RequestID)
+	router.Use(middleware.RealIP)
+	router.Use(logger.RequestLogger)
+	// Set a timeout value on the request context (ctx), that will signal
+	// through ctx.Done() that the request has timed out and further
+	// processing should be stopped.
+	router.Use(middleware.Timeout(60 * time.Second))
 
 	router.Get("/healthcheck", handlers.Healthcheck)
 	router.Post("/image", handlers.ImageHandler)
@@ -25,8 +41,5 @@ func NewRouter() *chi.Mux {
 	router.Put("/updateUser", handlers.UpdateUserHandler)
 	router.Delete("/deleteUser", handlers.DeleteUserHandler)
 
-	// Middleware
-	// router.Use(middleware.Logger)
-	// router.Use(middleware.Recoverer)
 	return router
 }

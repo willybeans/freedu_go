@@ -17,7 +17,7 @@ const ErrorImage = "must use jpeg, png, or tiff file types"
 
 func Healthcheck(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Healthcheck"})
+	json.NewEncoder(w).Encode(map[string]string{"message": "Healthcheck!"})
 }
 
 func ImageHandler(w http.ResponseWriter, r *http.Request) {
