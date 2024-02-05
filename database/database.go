@@ -3,10 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/willybeans/freedu_go/logger"
 )
 
 type User struct {
@@ -24,9 +24,12 @@ var database *sql.DB
 
 func DbConnect() {
 
+	l := logger.Get()
+
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		l.Fatal().
+			Msg(" Error Loading .env file ")
 	}
 
 	dbname := os.Getenv("DB_NAME")
@@ -41,19 +44,19 @@ func DbConnect() {
 	// Connect to the PostgreSQL database
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Println("Could not connect to DB!")
-		log.Fatal(err)
+		l.Fatal().
+			Msg("Error connecting to DB!")
 	}
 
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		l.Fatal().
+			Msg("Error on DB ping!")
 	}
 
 	database = db
-	log.Println("Connected to DB.")
-	// return db
-
+	l.Info().
+		Msgf("Connected to DB on port '%s'", port)
 }
 
 func DB() *sql.DB {
@@ -61,5 +64,9 @@ func DB() *sql.DB {
 }
 
 func CloseDB() error {
+	l := logger.Get()
+
+	l.Fatal().
+		Msg("Database closed!")
 	return database.Close()
 }

@@ -36,7 +36,8 @@ This api is built to support the React Native project [here](https://github.com/
 
 ## To Run
 
-- making sure psql is running, open a terminal in root dir, and run the command `air`
+- making sure psql is running, open a terminal in root dir, and run the command `LOG_LEVEL=1 APP_ENV="development" air` for prettified logging
+- `LOG_LEVEL=1 APP_ENV="production" air` for production
 
 ### Your first pull request
 

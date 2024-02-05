@@ -28,7 +28,7 @@ SQL_CREATE_DB="CREATE DATABASE $DB_NAME;"
 SQL_CREATE_TABLE_USERS="CREATE TABLE users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   username VARCHAR(255) NOT NULL,
-  profile TEXT,
+  profile TEXT NOT NULL,
   time_created TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );"
 SQL_CREATE_TABLE_CONTENT="CREATE TABLE content (
@@ -61,10 +61,10 @@ SQL_CREATE_MESSAGES="CREATE TABLE messages (
   content TEXT NOT NULL,
   sent_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );"
-SQL_INSERT_DATA="INSERT INTO users (id, username) VALUES
-  ('d2792a62-86a4-4c49-a909-b1e762c683a3', 'johnny_mnemonic'),
-  ('fc1b7d29-6aeb-432b-9354-7e4c65f15d4e', 'bob_loblaw'),
-  ('9f0b1b5f-9cc5-4d14-aa9c-82cbe87e8a95', 'twinkle_toes');
+SQL_INSERT_DATA="INSERT INTO users (id, username, profile) VALUES
+  ('d2792a62-86a4-4c49-a909-b1e762c683a3', 'johnny_mnemonic', 'Discreetly transports sensitive data for corporations in a storage device implanted in his brain at the cost of his childhood memories.'),
+  ('fc1b7d29-6aeb-432b-9354-7e4c65f15d4e', 'bob_loblaw', 'The Bluth familys new attorney'),
+  ('9f0b1b5f-9cc5-4d14-aa9c-82cbe87e8a95', 'twinkle_toes', 'Air Nomad born in 12 BG and the Avatar during the Hundred Year War');
 "
 
 # Create the database

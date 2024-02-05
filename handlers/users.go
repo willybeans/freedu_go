@@ -22,8 +22,9 @@ type NewUser struct {
 }
 
 type User struct {
-	ID          int    `json:"id"`
+	ID          string `json:"id"`
 	UserName    string `json:"username"`
+	Profile     string `json:"profile"`
 	TimeCreated string `json:"time_created"`
 }
 
@@ -55,7 +56,7 @@ func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
 	userList := make([]User, 0)
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.ID, &user.UserName, &user.TimeCreated)
+		err := rows.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

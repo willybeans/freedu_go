@@ -1,14 +1,14 @@
 package main
 
 import (
-	"log"
-
 	"github.com/willybeans/freedu_go/database"
+	"github.com/willybeans/freedu_go/logger"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
+	l := logger.Get()
 
 	// Init Router
 	router := NewRouter()
@@ -19,6 +19,9 @@ func main() {
 	// Init Server
 	err := s.httpServer.ListenAndServe()
 	if err != nil {
-		log.Fatal(err)
+		// log.Fatal(err)
+		l.Fatal().
+			// Err(http.ListenAndServe(":"+port, mux)).
+			Msg("App Server Closed")
 	}
 }
