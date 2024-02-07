@@ -31,6 +31,7 @@ func NewRouter() *chi.Mux {
 
 	router.Get("/getContent", handlers.GetContentHandler)
 	router.Get("/getAllContent", handlers.GetAllContentHandler)
+	router.Get("/getAllUserContent", handlers.GetAllUserContentHandler)
 	router.Post("/newContent", handlers.NewContentHandler)
 	router.Put("/updateContent", handlers.UpdateContentHandler)
 	router.Delete("/deleteContent", handlers.DeleteContentHandler)

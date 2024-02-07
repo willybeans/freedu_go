@@ -10,28 +10,28 @@ import (
 )
 
 type ID struct {
-	ID int `json:"id"`
+	ID string `json:"id"`
 }
 
 type Author_ID struct {
-	ID int `json:"author_id"`
+	ID string `json:"author_id"`
 }
 
 type NewContent struct {
-	Author_ID   int    `json:"author_id"`
+	Author_ID   string `json:"author_id"`
 	Title       string `json:"title"`
 	BodyContent string `json:"body_content"`
 }
 
 type UpdateContent struct {
-	ID          int    `json:"id"`
+	ID          string `json:"id"`
 	Title       string `json:"title"`
 	BodyContent string `json:"body_content"`
 }
 
 type Content struct {
-	Author_ID   int    `json:"author_id"`
-	Content_ID  int    `json:"id"`
+	Author_ID   string `json:"author_id"`
+	Content_ID  string `json:"id"`
 	Title       string `json:"title"`
 	BodyContent string `json:"body_content"`
 	TimeCreated string `json:"time_created"`
@@ -55,6 +55,30 @@ func GetContentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllContentHandler(w http.ResponseWriter, r *http.Request) {
+
+	rows, err := database.DB().Query("SELECT * FROM content ORDER BY time_created DESC")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	contentList := make([]Content, 0)
+	for rows.Next() {
+		var content Content
+		err := rows.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.TimeCreated)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		contentList = append(contentList, content)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(contentList)
+}
+
+func GetAllUserContentHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.URL.Query().Get("id")
 
 	rows, err := database.DB().Query("SELECT * FROM content WHERE author_id=$1", userId)
