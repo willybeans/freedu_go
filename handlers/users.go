@@ -13,8 +13,9 @@ type User_ID struct {
 }
 
 type UpdateUser struct {
-	ID       int    `json:"id"`
+	ID       string `json:"id"`
 	UserName string `json:"username"`
+	Profile  string `json:"profile"`
 }
 
 type NewUser struct {
@@ -32,7 +33,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.URL.Query().Get("id")
 
 	var user User
-	err := database.DB().QueryRow("SELECT * FROM users WHERE id = $1", userId).Scan(&user.ID, &user.UserName, &user.TimeCreated)
+	err := database.DB().QueryRow("SELECT * FROM users WHERE id = $1", userId).Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated)
 	if err == sql.ErrNoRows {
 		http.NotFound(w, r)
 		return
@@ -93,9 +94,10 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// future: add user validation
+
 	var user User
-	err := database.DB().QueryRow("UPDATE user SET username = $1 WHERE id = $2 RETURNING *", updateUser.UserName, updateUser.ID).Scan(&user.ID, &user.UserName, &user.TimeCreated)
+	query := database.DB().QueryRow("UPDATE users SET username = $1, profile = $2 WHERE id = $3 RETURNING *", updateUser.UserName, updateUser.Profile, updateUser.ID)
+	err := query.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
