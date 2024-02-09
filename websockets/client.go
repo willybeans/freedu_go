@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package websockets
 
 import (
 	"bytes"
@@ -136,7 +136,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 }
 
-func createWsConnection() http.HandlerFunc {
+func CreateWsConnection() http.HandlerFunc {
 	hub := newHub()
 	go hub.run()
 

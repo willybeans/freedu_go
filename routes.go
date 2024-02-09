@@ -5,6 +5,7 @@ import (
 
 	"github.com/willybeans/freedu_go/handlers"
 	"github.com/willybeans/freedu_go/logger"
+	"github.com/willybeans/freedu_go/websockets"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -43,7 +44,7 @@ func NewRouter() *chi.Mux {
 	router.Put("/updateUser", handlers.UpdateUserHandler)
 	router.Delete("/deleteUser", handlers.DeleteUserHandler)
 
-	router.Handle("/ws", createWsConnection())
+	router.Handle("/ws", websockets.CreateWsConnection())
 
 	return router
 }
