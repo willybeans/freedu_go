@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/willybeans/freedu_go/handlers"
@@ -21,6 +20,7 @@ func NewRouter() *chi.Mux {
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(logger.RequestLogger)
+
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
@@ -43,20 +43,7 @@ func NewRouter() *chi.Mux {
 	router.Put("/updateUser", handlers.UpdateUserHandler)
 	router.Delete("/deleteUser", handlers.DeleteUserHandler)
 
-	hub := newHub()
-	go hub.run()
-	// http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-	// 	println("testing websockets!")
-	// 	serveWs(hub, w, r)
-	// })
-
-	// i know that it goes into a handle function.
-	// this function is wrong tho
-	// handler.New()
-	router.Handle("/ws", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		println("testing websockets!")
-		serveWs(hub, w, r)
-	}))
+	router.Handle("/ws", createWsConnection())
 
 	return router
 }

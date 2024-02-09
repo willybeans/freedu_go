@@ -124,7 +124,7 @@ func (c *Client) writePump() {
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("websocket handshake failed: ", err)
+		log.Println("websocket handshake failed; ", err)
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
@@ -134,4 +134,14 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
+}
+
+func createWsConnection() http.HandlerFunc {
+	hub := newHub()
+	go hub.run()
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		println("websocket connected!")
+		serveWs(hub, w, r)
+	})
 }
