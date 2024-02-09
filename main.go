@@ -12,6 +12,7 @@ func main() {
 
 	// Init Router
 	router := NewRouter()
+
 	// Init Database
 	database.DbConnect()
 	defer database.CloseDB()
