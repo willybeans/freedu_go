@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"fmt"
 	"database/sql"
 	"encoding/json"
 	"net/http"
-
 	"github.com/willybeans/freedu_go/database"
 )
 
@@ -47,7 +45,6 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("testing 1234")
 	rows, err := database.DB().Query("SELECT * FROM users")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -71,10 +68,6 @@ func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewUserHandler(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println("here is request")
-	fmt.Println(r)
-	
 	var newUser NewUser
 	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
