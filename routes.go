@@ -41,5 +41,7 @@ func NewRouter() *chi.Mux {
 	router.Put("/updateUser", handlers.UpdateUserHandler)
 	router.Delete("/deleteUser", handlers.DeleteUserHandler)
 
+	router.Post("/newChat", handlers.NewChatHandler)
+
 	return router
 }
