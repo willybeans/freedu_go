@@ -43,8 +43,11 @@ func NewRouter() *chi.Mux {
 	router.Post("/newUser", handlers.NewUserHandler)
 	router.Put("/updateUser", handlers.UpdateUserHandler)
 	router.Delete("/deleteUser", handlers.DeleteUserHandler)
+  
+	router.Post("/newChat", handlers.NewChatHandler)
 
 	router.Handle("/ws", websockets.CreateWsConnection())
+
 
 	return router
 }
