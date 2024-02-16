@@ -15,14 +15,16 @@ type Subscriber struct {
 	mutex    sync.RWMutex    // lock
 }
 
-func CreateNewSubscriber() (string, *Subscriber) {
+func CreateNewSubscriber(user_uuid string) (string, *Subscriber) {
 	// returns a new subscriber.
 	b := make([]byte, 8)
 	_, err := rand.Read(b)
 	if err != nil {
 		log.Fatal(err)
 	}
-	id := fmt.Sprintf("%X-%X", b[0:4], b[4:8])
+	//instead of making this, you will pass uuid from websocket
+	// id := fmt.Sprintf("%X-%X", b[0:4], b[4:8])
+	id := user_uuid
 	return id, &Subscriber{
 		id:       id,
 		messages: make(chan *Message),

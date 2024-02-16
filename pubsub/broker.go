@@ -1,8 +1,9 @@
 package pubsub
 
 import (
-	"fmt"
 	"sync"
+
+	"github.com/willybeans/freedu_go/logger"
 )
 
 type Subscribers map[string]*Subscriber
@@ -21,23 +22,20 @@ func NewBroker() *Broker {
 	}
 }
 
-func (b *Broker) AddSubscriber() *Subscriber {
-	// Add subscriber to the broker.
+func (b *Broker) AddSubscriber(user_uuid string) *Subscriber {
 	b.mut.Lock()
 	defer b.mut.Unlock()
-	id, s := CreateNewSubscriber()
+	// pass id
+	id, s := CreateNewSubscriber(user_uuid)
 	b.subscribers[id] = s
 	return s
 }
 
 func (b *Broker) RemoveSubscriber(s *Subscriber) {
-	// remove subscriber to the broker.
-	//unsubscribe to all topics which s is subscribed to.
 	for topic := range s.topics {
 		b.Unsubscribe(s, topic)
 	}
 	b.mut.Lock()
-	// remove subscriber from list of subscribers.
 	delete(b.subscribers, s.id)
 	b.mut.Unlock()
 	s.Destruct()
@@ -56,33 +54,32 @@ func (b *Broker) Broadcast(msg string, topics []string) {
 }
 
 func (b *Broker) GetSubscribers(topic string) int {
-	// get total subscribers subscribed to given topic.
-	b.mut.RLock()
+	b.mut.RLock() // whats the diff with .Lock()? whats recursive read locking?
 	defer b.mut.RUnlock()
 	return len(b.topics[topic])
 }
 
 func (b *Broker) Subscribe(s *Subscriber, topic string) {
-	// subscribe to given topic
+	l := logger.Get()
 	b.mut.Lock()
 	defer b.mut.Unlock()
 
 	if b.topics[topic] == nil {
-		b.topics[topic] = Subscribers{}
+		b.topics[topic] = Subscribers{} // i think this is an empty map?
 	}
 	s.AddTopic(topic)
 	b.topics[topic][s.id] = s
-	fmt.Printf("%s Subscribed for topic: %s\n", s.id, topic)
+	l.Info().Msgf("%s Subscribed for topic: %s\n", s.id, topic)
 }
 
 func (b *Broker) Unsubscribe(s *Subscriber, topic string) {
-	// unsubscribe to given topic
+	l := logger.Get()
 	b.mut.RLock()
 	defer b.mut.RUnlock()
 
 	delete(b.topics[topic], s.id)
 	s.RemoveTopic(topic)
-	fmt.Printf("%s Unsubscribed for topic: %s\n", s.id, topic)
+	l.Info().Msgf("%s Unsubscribed for topic: %s\n", s.id, topic)
 }
 
 func (b *Broker) Publish(topic string, msg string) {

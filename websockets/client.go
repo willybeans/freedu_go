@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/willybeans/freedu_go/logger"
 )
 
 const (
@@ -39,6 +40,8 @@ var upgrader = websocket.Upgrader{
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
+	id string
+
 	hub *Hub
 
 	// The websocket connection.
@@ -127,7 +130,9 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println("websocket handshake failed; ", err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+
+	userId := r.Header.Get("user_id")
+	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: userId}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
@@ -137,11 +142,12 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateWsConnection() http.HandlerFunc {
+	l := logger.Get()
 	hub := newHub()
 	go hub.run()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		println("websocket connected!")
+		l.Info().Msgf("Websocket connection established")
 		serveWs(hub, w, r)
 	})
 }
