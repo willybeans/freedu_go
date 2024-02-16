@@ -5,6 +5,7 @@ import (
 
 	"github.com/willybeans/freedu_go/handlers"
 	"github.com/willybeans/freedu_go/logger"
+	"github.com/willybeans/freedu_go/websockets"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -20,6 +21,7 @@ func NewRouter() *chi.Mux {
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(logger.RequestLogger)
+
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
@@ -41,6 +43,8 @@ func NewRouter() *chi.Mux {
 	router.Post("/newUser", handlers.NewUserHandler)
 	router.Put("/updateUser", handlers.UpdateUserHandler)
 	router.Delete("/deleteUser", handlers.DeleteUserHandler)
+
+	router.Handle("/ws", websockets.CreateWsConnection())
 
 	return router
 }
