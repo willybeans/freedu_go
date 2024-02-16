@@ -77,14 +77,23 @@ psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_TAB
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_TABLE_CONTENT"
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_TABLE_SAVED_CONTENT"
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_TABLE_CHAT_ROOMS"
-psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_CHAT_ROOM_PARTICIPANT"
+psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_TABLE_USER_CHATROOM_XREF"
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_CREATE_MESSAGES"
 
 # Create default user
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$SQL_INSERT_DATA"
 
-# Create mock data with csv file
-# CSV_FILE="MOCK_DATA.csv"
-# psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY content FROM '$CSV_FILE' delimiter ',' CSV HEADER;"
+# Create mock data with csv files
+CSV_FILE="MOCK_DATA.csv"
+psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY content FROM '$CSV_FILE' delimiter ',' CSV HEADER;"
+
+CSV_CHAT_XREF_FILE="MOCK_CHAT_ROOM.csv"
+psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY chat_room FROM '$CSV_CHAT_XREF_FILE' delimiter ',' CSV HEADER;"
+
+CSV_CHAT_XREF_FILE="MOCK_CHAT_XREF.csv"
+psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY user_chatroom_xref FROM '$CSV_CHAT_XREF_FILE' delimiter ',' CSV HEADER;"
+
+CSV_CHAT_FILE="MOCK_CHAT_DATA.csv"
+psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY messages FROM '$CSV_CHAT_FILE' delimiter ',' CSV HEADER;"
 # in psql you can also run this command: 
 #  \copy content from '/Users/willwedmedyk/Downloads/MOCK_DATA.csv' delimiter ',' CSV HEADER;
