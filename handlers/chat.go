@@ -1,28 +1,28 @@
 package handlers
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
+
 	"github.com/willybeans/freedu_go/database"
 )
 
 type Chat struct {
-	ID              string    `json:"id"`
-	TimeCreated     string    `json:"time_created"`
-	ChatName        string    `json:"chat_name"`
+	ID          string `json:"id"`
+	TimeCreated string `json:"time_created"`
+	ChatName    string `json:"chat_name"`
 }
 
 type NewChat struct {
-	ChatName      string    `json:"chat_name"`
-	Members       []string  `json:"members"`
+	ChatName string   `json:"chat_name"`
+	Members  []string `json:"members"`
 }
 
 func NewChatHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("sanity check")
 	// 1. Insert chat into chat table
-	var newChat NewChat 
+	var newChat NewChat
 	if err := json.NewDecoder(r.Body).Decode(&newChat); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -48,7 +48,7 @@ func NewChatHandler(w http.ResponseWriter, r *http.Request) {
 		i++
 	}
 	// then craft sql statement for inserting data into xref table
-	sqlStr := fmt.Sprintf("INSERT INTO user_chat_xref (user_id, chat_room_id) VALUES %s", strings.Join(valStrings, ","))
+	sqlStr := fmt.Sprintf("INSERT INTO user_chatroom_xref (user_id, chat_room_id) VALUES %s", strings.Join(valStrings, ","))
 
 	// now insert into database
 	// potential improvement: return values to check for error
