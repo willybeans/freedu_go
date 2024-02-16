@@ -22,6 +22,9 @@ type User struct {
 
 var database *sql.DB
 
+//consider writing this into a struct
+//then its expandable where you can init multiple servers
+
 func DbConnect() {
 
 	l := logger.Get()

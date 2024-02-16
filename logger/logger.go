@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"os"
@@ -10,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rs/xid"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/pkgerrors"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -92,64 +91,66 @@ func Get() zerolog.Logger {
 	return log
 }
 
-func RequestLogger(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
+//this does not implement http/Hijacker, so it fails on websocket connection!
 
-		l := Get()
+// func RequestLogger(next http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		start := time.Now()
 
-		correlationID := xid.New().String()
+// 		l := Get()
 
-		ctx := context.WithValue(r.Context(), "correlation_id", correlationID)
+// 		correlationID := xid.New().String()
 
-		r = r.WithContext(ctx)
+// 		ctx := context.WithValue(r.Context(), "correlation_id", correlationID)
 
-		l.UpdateContext(func(c zerolog.Context) zerolog.Context {
-			return c.Str("correlation_id", correlationID)
-		})
+// 		r = r.WithContext(ctx)
 
-		w.Header().Add("X-Correlation-ID", correlationID)
+// 		l.UpdateContext(func(c zerolog.Context) zerolog.Context {
+// 			return c.Str("correlation_id", correlationID)
+// 		})
 
-		lrw := newLoggingResponseWriter(w)
+// 		w.Header().Add("X-Correlation-ID", correlationID)
 
-		defer func() {
-			panicVal := recover()
-			if panicVal != nil {
-				lrw.statusCode = http.StatusInternalServerError // ensure that the status code is updated
-				panic(panicVal)                                 // continue panicking
-			}
-			l.
-				Info().
-				Str("method", r.Method).
-				Str("url", r.URL.RequestURI()).
-				Str("user_agent", r.UserAgent()).
-				Dur("elapsed_ms", time.Since(start)).
-				Int("status_code", lrw.statusCode).
-				Msg("incoming request")
-		}()
-		next.ServeHTTP(lrw, r)
-	})
-}
+// 		lrw := newLoggingResponseWriter(w)
+
+// 		defer func() {
+// 			panicVal := recover()
+// 			if panicVal != nil {
+// 				lrw.statusCode = http.StatusInternalServerError // ensure that the status code is updated
+// 				panic(panicVal)                                 // continue panicking
+// 			}
+// 			l.
+// 				Info().
+// 				Str("method", r.Method).
+// 				Str("url", r.URL.RequestURI()).
+// 				Str("user_agent", r.UserAgent()).
+// 				Dur("elapsed_ms", time.Since(start)).
+// 				Int("status_code", lrw.statusCode).
+// 				Msg("incoming request")
+// 		}()
+// 		next.ServeHTTP(lrw, r)
+// 	})
+// }
 
 // uses their hlog helper for logging instead of writing it yourself
-// func RequestLogger(next http.Handler) http.Handler {
-// 	l := Get()
+func RequestLogger(next http.Handler) http.Handler {
+	l := Get()
 
-// 	h := hlog.NewHandler(l)
+	h := hlog.NewHandler(l)
 
-// 	accessHandler := hlog.AccessHandler(
-// 		func(r *http.Request, status, size int, duration time.Duration) {
-// 			hlog.FromRequest(r).Info().
-// 				Str("method", r.Method).
-// 				Stringer("url", r.URL).
-// 				Int("status_code", status).
-// 				Int("response_size_bytes", size).
-// 				Dur("elapsed_ms", duration).
-// 				Msg("incoming request")
-// 		},
-// 	)
+	accessHandler := hlog.AccessHandler(
+		func(r *http.Request, status, size int, duration time.Duration) {
+			hlog.FromRequest(r).Info().
+				Str("method", r.Method).
+				Stringer("url", r.URL).
+				Int("status_code", status).
+				Int("response_size_bytes", size).
+				Dur("elapsed_ms", duration).
+				Msg("incoming request")
+		},
+	)
 
-// 	userAgentHandler := hlog.UserAgentHandler("http_user_agent")
+	userAgentHandler := hlog.UserAgentHandler("http_user_agent")
 
-// 	return h(accessHandler(userAgentHandler(next)))
-// }
+	return h(accessHandler(userAgentHandler(next)))
+}

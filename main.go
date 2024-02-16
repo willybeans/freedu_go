@@ -12,10 +12,14 @@ func main() {
 
 	// Init Router
 	router := NewRouter()
+
 	// Init Database
 	database.DbConnect()
 	defer database.CloseDB()
+
+	// Init Router
 	s := NewServer(router)
+
 	// Init Server
 	err := s.httpServer.ListenAndServe()
 	if err != nil {
