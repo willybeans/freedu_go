@@ -3,23 +3,10 @@ package queries
 import (
 	"github.com/willybeans/freedu_go/database"
 	"github.com/willybeans/freedu_go/logger"
+	"github.com/willybeans/freedu_go/types"
 )
 
-type Message struct {
-	ID          string `json:"id"`
-	ChatRoom_ID string `json:"chat_room_id"`
-	User_ID     string `json:"user_id"`
-	Content     string `json:"content"`
-	SentAt      string `json:"sent_at"`
-}
-
-type ChatRoomXref struct {
-	ID      string `json:"id"`
-	User_ID string `json:"user_id"`
-	Chat_ID string `json:"chat_room_id"`
-}
-
-func GetMessagesByChatID(chatRoomID string) ([]Message, error) {
+func GetMessagesByChatID(chatRoomID string) ([]types.Message, error) {
 	l := logger.Get()
 
 	rows, err := database.DB().Query("SELECT * FROM messages WHERE chat_room_id = $1 ORDER BY \"sent_at\"", chatRoomID)
@@ -29,9 +16,9 @@ func GetMessagesByChatID(chatRoomID string) ([]Message, error) {
 	}
 	defer rows.Close()
 
-	Messages := make([]Message, 0)
+	Messages := make([]types.Message, 0)
 	for rows.Next() {
-		var message Message
+		var message types.Message
 		err := rows.Scan(&message.ID, &message.ChatRoom_ID, &message.User_ID, &message.Content, &message.SentAt)
 		if err != nil {
 			l.Error().Err(err).Msg("Error GetMessagesByChatID on Scan")
@@ -43,7 +30,7 @@ func GetMessagesByChatID(chatRoomID string) ([]Message, error) {
 	return Messages, nil
 }
 
-func GetXRefsByChatID(chatId string) ([]ChatRoomXref, error) {
+func GetXRefsByChatID(chatId string) ([]types.ChatRoomXref, error) {
 	l := logger.Get()
 
 	rows, err := database.DB().Query("SELECT * FROM user_chatroom_xref WHERE chat_room_id = $1", chatId)
@@ -53,9 +40,9 @@ func GetXRefsByChatID(chatId string) ([]ChatRoomXref, error) {
 	}
 	defer rows.Close()
 
-	chatRoomXrefList := make([]ChatRoomXref, 0)
+	chatRoomXrefList := make([]types.ChatRoomXref, 0)
 	for rows.Next() {
-		var chatRoomXref ChatRoomXref
+		var chatRoomXref types.ChatRoomXref
 		err := rows.Scan(&chatRoomXref.ID, &chatRoomXref.User_ID, &chatRoomXref.Chat_ID)
 		if err != nil {
 			l.Error().Err(err).Msg("Error GetXRefsByChatID on Scan")
@@ -66,7 +53,7 @@ func GetXRefsByChatID(chatId string) ([]ChatRoomXref, error) {
 	return chatRoomXrefList, nil
 }
 
-func GetChatRoomsByUserID(userId string) ([]ChatRoomXref, error) {
+func GetChatRoomsByUserID(userId string) ([]types.ChatRoomXref, error) {
 	l := logger.Get()
 
 	rows, err := database.DB().Query("SELECT * FROM user_chatroom_xref WHERE user_id = $1", userId)
@@ -76,9 +63,9 @@ func GetChatRoomsByUserID(userId string) ([]ChatRoomXref, error) {
 	}
 	defer rows.Close()
 
-	chatRoomXrefList := make([]ChatRoomXref, 0)
+	chatRoomXrefList := make([]types.ChatRoomXref, 0)
 	for rows.Next() {
-		var chatRoomXref ChatRoomXref
+		var chatRoomXref types.ChatRoomXref
 		err := rows.Scan(&chatRoomXref.ID, &chatRoomXref.User_ID, &chatRoomXref.Chat_ID)
 		if err != nil {
 			l.Error().Err(err).Msg("Error GetChatRoomsByUserID on Scan")
@@ -87,4 +74,18 @@ func GetChatRoomsByUserID(userId string) ([]ChatRoomXref, error) {
 		chatRoomXrefList = append(chatRoomXrefList, chatRoomXref)
 	}
 	return chatRoomXrefList, nil
+}
+
+func NewMessageForUserInChat(newMessage types.NewMessage) (types.Message, error) {
+	l := logger.Get()
+
+	var message types.Message
+	query := database.DB().QueryRow("INSERT INTO messages (chat_room_id, user_id, content) VALUES ($1, $2, $3) RETURNING *", newMessage.ChatRoom_ID, newMessage.User_ID, newMessage.Content)
+	err := query.Scan(&message.ID, &message.ChatRoom_ID, &message.User_ID, &message.Content, &message.SentAt)
+	if err != nil {
+		l.Error().Err(err).Msg("Error NewMessage on Scan")
+		return message, err
+	}
+
+	return message, nil
 }

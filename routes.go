@@ -47,9 +47,10 @@ func NewRouter() *chi.Mux {
 	router.Get("/getMessagesByChatId", handlers.GetMessagesByChatIDHandler)
 	router.Get("/getAllChatsByUserId", handlers.GetAllChatsForUserHandler)
 	// combine with other req for users
-	router.Get("/getAllXRefForChatHandler", handlers.GetAllXRefForChatHandler)
+	router.Get("/getAllXRefForChat", handlers.GetAllXRefForChatHandler)
 
 	router.Post("/newChat", handlers.NewChatHandler)
+	router.Post("/newMessageForUserInChat", handlers.NewMessageForUserInChatHandler)
 
 	router.Handle("/ws", websockets.CreateWsConnection())
 
