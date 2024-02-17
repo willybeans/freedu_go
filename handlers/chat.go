@@ -44,6 +44,19 @@ func GetMessagesByChatIDHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(message)
 }
 
+func GetAllChatsForUserHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.URL.Query().Get("id")
+
+	GetChatRoomsByUserID, err := queries.GetChatRoomsByUserID(userId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(GetChatRoomsByUserID)
+}
+
 func NewChatHandler(w http.ResponseWriter, r *http.Request) {
 	// 1. Insert chat into chat table
 	var newChat NewChat

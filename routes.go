@@ -45,6 +45,7 @@ func NewRouter() *chi.Mux {
 	router.Delete("/deleteUser", handlers.DeleteUserHandler)
 
 	router.Get("/getMessagesByChatId", handlers.GetMessagesByChatIDHandler)
+	router.Get("/getAllChatsByUserId", handlers.GetAllChatsForUserHandler)
 	router.Post("/newChat", handlers.NewChatHandler)
 
 	router.Handle("/ws", websockets.CreateWsConnection())
