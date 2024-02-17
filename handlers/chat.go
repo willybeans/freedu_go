@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/willybeans/freedu_go/database"
+	"github.com/willybeans/freedu_go/queries"
 )
 
 type Chat struct {
@@ -18,6 +19,29 @@ type Chat struct {
 type NewChat struct {
 	ChatName string   `json:"chat_name"`
 	Members  []string `json:"members"`
+}
+
+type ChatXref struct {
+	ChatName string   `json:"chat_name"`
+	Members  []string `json:"members"`
+}
+
+type Message struct {
+	ChatName string   `json:"chat_name"`
+	Members  []string `json:"members"`
+}
+
+func GetMessagesByChatIDHandler(w http.ResponseWriter, r *http.Request) {
+	chatId := r.URL.Query().Get("id")
+
+	message, err := queries.GetMessagesByChatID(chatId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(message)
 }
 
 func NewChatHandler(w http.ResponseWriter, r *http.Request) {
