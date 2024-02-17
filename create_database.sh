@@ -93,7 +93,8 @@ psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY chat_room
 CSV_CHAT_XREF_FILE="MOCK_CHAT_XREF.csv"
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY user_chatroom_xref FROM '$CSV_CHAT_XREF_FILE' delimiter ',' CSV HEADER;"
 
-CSV_CHAT_FILE="MOCK_CHAT_DATA.csv"
+CSV_CHAT_FILE="MOCK_CHAT_MESSAGES.csv"
 psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "\COPY messages FROM '$CSV_CHAT_FILE' delimiter ',' CSV HEADER;"
-# in psql you can also run this command: 
+
+# in psql you can also run this for each individual file using the following command:
 #  \copy content from '/Users/willwedmedyk/Downloads/MOCK_DATA.csv' delimiter ',' CSV HEADER;
