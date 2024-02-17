@@ -43,6 +43,29 @@ func GetMessagesByChatID(chatRoomID string) ([]Message, error) {
 	return Messages, nil
 }
 
+func GetXRefsByChatID(chatId string) ([]ChatRoomXref, error) {
+	l := logger.Get()
+
+	rows, err := database.DB().Query("SELECT * FROM user_chatroom_xref WHERE chat_room_id = $1", chatId)
+	if err != nil {
+		l.Error().Err(err).Msg("Error GetXRefsByChatID on Query")
+		return nil, err
+	}
+	defer rows.Close()
+
+	chatRoomXrefList := make([]ChatRoomXref, 0)
+	for rows.Next() {
+		var chatRoomXref ChatRoomXref
+		err := rows.Scan(&chatRoomXref.ID, &chatRoomXref.User_ID, &chatRoomXref.Chat_ID)
+		if err != nil {
+			l.Error().Err(err).Msg("Error GetXRefsByChatID on Scan")
+			return nil, err
+		}
+		chatRoomXrefList = append(chatRoomXrefList, chatRoomXref)
+	}
+	return chatRoomXrefList, nil
+}
+
 func GetChatRoomsByUserID(userId string) ([]ChatRoomXref, error) {
 	l := logger.Get()
 
