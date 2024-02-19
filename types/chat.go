@@ -19,3 +19,8 @@ type ChatRoomXref struct {
 	User_ID     string `json:"user_id"`
 	ChatRoom_ID string `json:"chat_room_id"`
 }
+
+type IdsForNewXref struct {
+	User_ID     string `json:"user_id"`
+	ChatRoom_ID string `json:"chat_room_id"`
+}
