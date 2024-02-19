@@ -92,3 +92,20 @@ func NewMessageForUserInChat(newMessage types.NewMessage) (types.Message, error)
 	return message, nil
 
 }
+
+func NewXrefForChatID(user types.IdsForNewXref) (types.ChatRoomXref, error) {
+	l := logger.Get()
+
+	// confirm user is allowed to write to this chat
+	var xref types.ChatRoomXref
+	// if userCanJoinChat(user) {
+	query := database.DB().QueryRow("INSERT INTO user_chatroom_xref (chat_room_id, user_id) VALUES ($1, $2) RETURNING *", newMessage.ChatRoom_ID, newMessage.User_ID, newMessage.Content)
+	err := query.Scan(&xref.ID, &xref.ChatRoom_ID, &xref.User_ID)
+	if err != nil {
+		l.Error().Err(err).Msg("Error NewMessage on Scan")
+		return xref, err
+	}
+	// }
+	return xref, nil
+
+}
