@@ -127,3 +127,97 @@ func NewChatHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(chat)
 }
+
+// func UpdateMessageHandler(w http.ResponseWriter, r *http.Request) {
+// 	var updateUser UpdateUser
+// 	if err := json.NewDecoder(r.Body).Decode(&updateUser); err != nil {
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	var user User
+// 	query := database.DB().QueryRow("UPDATE users SET username = $1, profile = $2 WHERE id = $3 RETURNING *", updateUser.UserName, updateUser.Profile, updateUser.ID)
+// 	err := query.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	w.WriteHeader(http.StatusOK)
+// 	json.NewEncoder(w).Encode(user)
+
+// }
+
+// func UpdateChatHandler(w http.ResponseWriter, r *http.Request) {
+// 	var updateUser UpdateUser
+// 	if err := json.NewDecoder(r.Body).Decode(&updateUser); err != nil {
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	var user User
+// 	query := database.DB().QueryRow("UPDATE users SET username = $1, profile = $2 WHERE id = $3 RETURNING *", updateUser.UserName, updateUser.Profile, updateUser.ID)
+// 	err := query.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	w.WriteHeader(http.StatusOK)
+// 	json.NewEncoder(w).Encode(user)
+
+// }
+
+// func RemoveUserFromChatHandler(w http.ResponseWriter, r *http.Request) {
+// 	var deleteUser ID
+// 	if err := json.NewDecoder(r.Body).Decode(&deleteUser); err != nil {
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	/*
+// 		1- delete chat
+// 		2- delete all messages
+// 		3- delete all xrefs
+// 	*/
+// 	result, err := database.DB().Exec("DELETE FROM ChAtZ WHERE id = $1", deleteUser.ID)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	count, err := result.RowsAffected()
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusUnprocessableEntity)
+// 		// panic(err)
+// 	}
+
+// 	w.WriteHeader(http.StatusOK)
+// 	json.NewEncoder(w).Encode(count)
+// }
+
+// func DeleteChatHandler(w http.ResponseWriter, r *http.Request) {
+// 	var deleteUser ID
+// 	if err := json.NewDecoder(r.Body).Decode(&deleteUser); err != nil {
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	/*
+// 		1- delete chat
+// 		2- delete all messages
+// 		3- delete all xrefs
+// 	*/
+// 	result, err := database.DB().Exec("DELETE FROM ChAtZ WHERE id = $1", deleteUser.ID)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	count, err := result.RowsAffected()
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusUnprocessableEntity)
+// 		// panic(err)
+// 	}
+
+// 	w.WriteHeader(http.StatusOK)
+// 	json.NewEncoder(w).Encode(count)
+// }
