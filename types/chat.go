@@ -15,7 +15,7 @@ type Message struct {
 }
 
 type ChatRoomXref struct {
-	ID      string `json:"id"`
-	User_ID string `json:"user_id"`
-	Chat_ID string `json:"chat_room_id"`
+	ID          string `json:"id"`
+	User_ID     string `json:"user_id"`
+	ChatRoom_ID string `json:"chat_room_id"`
 }

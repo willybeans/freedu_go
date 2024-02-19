@@ -43,7 +43,7 @@ func GetXRefsByChatID(chatId string) ([]types.ChatRoomXref, error) {
 	chatRoomXrefList := make([]types.ChatRoomXref, 0)
 	for rows.Next() {
 		var chatRoomXref types.ChatRoomXref
-		err := rows.Scan(&chatRoomXref.ID, &chatRoomXref.User_ID, &chatRoomXref.Chat_ID)
+		err := rows.Scan(&chatRoomXref.ID, &chatRoomXref.User_ID, &chatRoomXref.ChatRoom_ID)
 		if err != nil {
 			l.Error().Err(err).Msg("Error GetXRefsByChatID on Scan")
 			return nil, err
@@ -66,7 +66,7 @@ func GetChatRoomsByUserID(userId string) ([]types.ChatRoomXref, error) {
 	chatRoomXrefList := make([]types.ChatRoomXref, 0)
 	for rows.Next() {
 		var chatRoomXref types.ChatRoomXref
-		err := rows.Scan(&chatRoomXref.ID, &chatRoomXref.User_ID, &chatRoomXref.Chat_ID)
+		err := rows.Scan(&chatRoomXref.ID, &chatRoomXref.User_ID, &chatRoomXref.ChatRoom_ID)
 		if err != nil {
 			l.Error().Err(err).Msg("Error GetChatRoomsByUserID on Scan")
 			return nil, err
