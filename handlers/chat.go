@@ -128,6 +128,25 @@ func NewChatHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(chat)
 }
 
+func NewXrefForUserInChatHandler(w http.ResponseWriter, r *http.Request) {
+	//needs testing
+	var ids types.IdsForNewXref
+	if err := json.NewDecoder(r.Body).Decode(&ids); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	xref, err := queries.NewXrefForChatID(ids)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(xref)
+}
+
 // func UpdateMessageHandler(w http.ResponseWriter, r *http.Request) {
 // 	var updateUser UpdateUser
 // 	if err := json.NewDecoder(r.Body).Decode(&updateUser); err != nil {
