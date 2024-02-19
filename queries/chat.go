@@ -79,13 +79,16 @@ func GetChatRoomsByUserID(userId string) ([]types.ChatRoomXref, error) {
 func NewMessageForUserInChat(newMessage types.NewMessage) (types.Message, error) {
 	l := logger.Get()
 
+	// confirm user is allowed to write to this chat
 	var message types.Message
+	// if userCanWriteToChat(newMessage) {
 	query := database.DB().QueryRow("INSERT INTO messages (chat_room_id, user_id, content) VALUES ($1, $2, $3) RETURNING *", newMessage.ChatRoom_ID, newMessage.User_ID, newMessage.Content)
 	err := query.Scan(&message.ID, &message.ChatRoom_ID, &message.User_ID, &message.Content, &message.SentAt)
 	if err != nil {
 		l.Error().Err(err).Msg("Error NewMessage on Scan")
 		return message, err
 	}
-
+	// }
 	return message, nil
+
 }
