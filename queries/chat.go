@@ -1,6 +1,9 @@
 package queries
 
 import (
+	"fmt"
+
+	"github.com/lib/pq"
 	"github.com/willybeans/freedu_go/database"
 	"github.com/willybeans/freedu_go/logger"
 	"github.com/willybeans/freedu_go/types"
@@ -107,5 +110,54 @@ func NewXrefForChatID(ids types.IdsForNewXref) (types.ChatRoomXref, error) {
 	}
 	// }
 	return xref, nil
+
+}
+
+func CreateChatPreviewsByUserID(userId string) ([]types.PreviewMessage, error) {
+	l := logger.Get()
+	// join between chat id + members names (by xref) + recent message
+	// ids := "'" + strings.Join(chatRoomIDs, "','") + "'"
+
+	// Construct the query string
+	query := fmt.Sprintf(`
+	WITH recent_messages AS (
+    SELECT DISTINCT ON (chat_room_id) *
+    FROM messages
+    ORDER BY chat_room_id, sent_at DESC
+	)
+	SELECT
+    u.username,
+    rm.content,
+    rm.sent_at,
+    ARRAY(SELECT username FROM users WHERE id IN (SELECT user_id FROM user_chatroom_xref WHERE chat_room_id = rm.chat_room_id)) AS usernames
+	FROM
+    recent_messages rm
+	JOIN
+    users u ON rm.user_id = u.id
+	WHERE
+    rm.chat_room_id IN (SELECT chat_room_id FROM user_chatroom_xref WHERE user_id = '%s');
+	`, userId)
+
+	// Execute the query
+	rows, err := database.DB().Query(query)
+	if err != nil {
+		l.Error().Err(err).Msg("Error JoinChatUserMessagePreview Query")
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Process the results
+	var messages []types.PreviewMessage
+	for rows.Next() {
+		var message types.PreviewMessage
+		err := rows.Scan(&message.Username, &message.Content, &message.SentAt, pq.Array(&message.UserNames))
+		if err != nil {
+			l.Error().Err(err).Msg("Error JoinChatUserMessagePreview Scan")
+			return nil, err
+		}
+		messages = append(messages, message)
+	}
+
+	return messages, nil
 
 }
