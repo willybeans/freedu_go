@@ -57,6 +57,7 @@ func GetXRefsByChatID(chatId string) ([]types.ChatRoomXref, error) {
 }
 
 func GetChatRoomsByUserID(userId string) ([]types.ChatRoomXref, error) {
+	// use for building subscription
 	l := logger.Get()
 
 	rows, err := database.DB().Query("SELECT * FROM user_chatroom_xref WHERE user_id = $1", userId)
