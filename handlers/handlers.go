@@ -1,14 +1,17 @@
 package handlers
 
 import (
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-rod/rod"
+	"github.com/go-rod/stealth"
 	_ "github.com/lib/pq"
 	"github.com/otiai10/gosseract/v2"
 )
@@ -80,14 +83,27 @@ func ImageHandler(w http.ResponseWriter, r *http.Request) {
 
 func ScrapeHandler(w http.ResponseWriter, r *http.Request) {
 	// https://www.spiegel.de/international/world/escalating-violence-radical-settlers-on-the-west-bank-see-an-opportunity-a-9499f824-9b39-4739-b6db-36772bc2bb99
+	// https://www.spiegel.de/ausland/alexej-nawalny-die-legende-darf-nicht-sterben-podcast-a-54160878-0bcf-45af-8f18-d8f1f51efa1e
 	// Decode the request body into the User struct
 	url := r.URL.Query().Get("url")
 	fmt.Println("scraping url =>", url)
 	// Launch a new browser with default options, and connect to it.
-	browser := rod.New().MustConnect()
+	// browser := rod.New().MustConnect()
+	// defer browser.MustClose()
+
+	browser := rod.New().Timeout(time.Minute).MustConnect()
 	defer browser.MustClose()
+
+	// You can also use stealth.JS directly without rod
+	fmt.Printf("js: %x\n\n", md5.Sum([]byte(stealth.JS)))
+
+	page := stealth.MustPage(browser)
+
+	// page.MustNavigate("https://bot.sannysoft.com")
+	page.MustNavigate(url).MustWaitStable()
+
 	// Create a new page
-	page := browser.MustPage(url).MustWaitStable()
+	// page := browser.MustPage(url).MustWaitStable()
 	body := page.MustElement("main").MustEval(`() => this.innerText`).String()
 	heading := page.MustElement("h1").MustEval(`() => this.innerText`).String()
 
