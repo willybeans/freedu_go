@@ -52,13 +52,14 @@ func (h *Hub) run() {
 			newSub := broker.AddSubscriber(client.id)
 			// CHECK FOR TOPICS in db under this user
 			allChats, err := queries.GetChatRoomsByUserID(client.id)
+			//CreateChatPreviewsByUserID also needs to send the display messages
 			if err != nil {
 				l.Error().Err(err).Msg("Error Registering Socket Connection:")
 			}
 			for index, chat := range allChats {
 				fmt.Println("index : ", index)
 				fmt.Println("chat : ", chat)
-				broker.Subscribe(newSub, chat.Chat_ID)
+				broker.Subscribe(newSub, chat.ChatRoom_ID)
 			}
 
 		case client := <-h.unregister:
