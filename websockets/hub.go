@@ -5,11 +5,13 @@
 package websockets
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/willybeans/freedu_go/logger"
 	"github.com/willybeans/freedu_go/pubsub"
 	"github.com/willybeans/freedu_go/queries"
+	"github.com/willybeans/freedu_go/types"
 )
 
 // Hub maintains the set of active clients and broadcasts messages to the
@@ -56,9 +58,9 @@ func (h *Hub) run() {
 			if err != nil {
 				l.Error().Err(err).Msg("Error Registering Socket Connection:")
 			}
-			for index, chat := range allChats {
-				fmt.Println("index : ", index)
-				fmt.Println("chat : ", chat)
+			for _, chat := range allChats {
+				// fmt.Println("index : ", index)
+				// fmt.Println("chat : ", chat)
 				broker.Subscribe(newSub, chat.ChatRoom_ID)
 			}
 
@@ -70,31 +72,60 @@ func (h *Hub) run() {
 				// broker.RemoveSubscriber() -- maybe not?
 				// i think this is not needed since
 				// we can keep them in memory for now ?
+				// but we could use this for currently online state change
 
 			}
 		case message := <-h.broadcast:
-			for client := range h.clients {
-				// println("test id, ", client.id)
-				// add logic here that blocks messages from sending
-				// if the specific client isnt subscribed to topic id
 
-				// we need some switch logic here for
-				// the different topics
+			// Get struct from string.
+			var webSocketMessage types.WebSocketMessage
+			if err := json.Unmarshal(message, &webSocketMessage); err != nil {
+				l.Error().Err(err).Msg("Error unmarshaling message:")
+				continue
+			}
 
-				/*
-				 - check for topic
-				 - if not exist - make topic
-				 then
-				 subscribe user to topic
-				*/
-
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(h.clients, client)
-					// DESTROY pubsub
+			var responseBody types.ResponseBody
+			switch webSocketMessage.Action {
+			case "get_messages":
+				fmt.Println("get_messages fired")
+				// queries.GetMessagesByChatID(webSocketMessage.Content)
+				//1- hit DB 2- spit back res obj
+			case "post_message":
+				l.Info().Msg("Post Message Websocket Fired")
+				resObj, err := queries.NewMessageForUserInChat(types.NewMessage{ChatRoom_ID: webSocketMessage.ChatRoom_ID, User_ID: webSocketMessage.User_ID, Content: webSocketMessage.Content})
+				if err != nil {
+					l.Error().Err(err).Msg("Error NewMessage on Websocket Broadcast")
 				}
+
+				responseBody = types.ResponseBody{
+					Message: resObj,
+					Action:  webSocketMessage.Action,
+				}
+
+				b, err := json.Marshal(responseBody)
+				if err != nil {
+					l.Error().Err(err).Msg("Error unmarshaling message:")
+				}
+
+				message = b
+			case "post_chat":
+				fmt.Println("post_chat fired")
+			default:
+				fmt.Println("default fired")
+			}
+			getSubscribers := broker.GetSubscribers(responseBody.ChatRoom_ID)
+			for client := range h.clients {
+				// check if client is a subscriber
+				if _, ok := getSubscribers[client.id]; ok {
+					select {
+					case client.send <- message:
+					default:
+						close(client.send)
+						delete(h.clients, client)
+						// DESTROY pubsub?
+					}
+				}
+
 			}
 		}
 	}

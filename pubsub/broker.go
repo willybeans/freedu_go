@@ -53,10 +53,10 @@ func (b *Broker) Broadcast(msg string, topics []string) {
 	}
 }
 
-func (b *Broker) GetSubscribers(topic string) int {
+func (b *Broker) GetSubscribers(topic string) Subscribers {
 	b.mut.RLock() // whats the diff with .Lock()? whats recursive read locking?
 	defer b.mut.RUnlock()
-	return len(b.topics[topic])
+	return b.topics[topic] // why was this len()????
 }
 
 func (b *Broker) Subscribe(s *Subscriber, topic string) {

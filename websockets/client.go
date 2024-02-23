@@ -131,7 +131,8 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId := r.Header.Get("user_id")
+	userId := r.URL.Query().Get("user_id")
+	// userId := r.Header.Get("user_id")
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: userId}
 	client.hub.register <- client
 
