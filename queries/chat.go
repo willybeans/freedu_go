@@ -120,6 +120,8 @@ func CreateChatPreviewsByUserID(userId string) ([]types.PreviewMessage, error) {
 	// ids := "'" + strings.Join(chatRoomIDs, "','") + "'"
 
 	// Construct the query string
+	//please study this in more depth
+	// ?is this query time bad compared to multiple joins?
 	query := fmt.Sprintf(`
 	WITH recent_messages AS (
     SELECT DISTINCT ON (chat_room_id) *

@@ -113,24 +113,19 @@ func (h *Hub) run() {
 			default:
 				fmt.Println("default fired")
 			}
-
+			getSubscribers := broker.GetSubscribers(responseBody.ChatRoom_ID)
 			for client := range h.clients {
-				// println("test id, ", client.id)
-				/*
-				 - check for topic by message id
-				 - if not exist - make topic
-				 then
-				 subscribe user to topic
-				*/
-				// if responseBody.Chatroom_ID
-
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(h.clients, client)
-					// DESTROY pubsub
+				// check if client is a subscriber
+				if _, ok := getSubscribers[client.id]; ok {
+					select {
+					case client.send <- message:
+					default:
+						close(client.send)
+						delete(h.clients, client)
+						// DESTROY pubsub?
+					}
 				}
+
 			}
 		}
 	}

@@ -22,7 +22,7 @@ func CreateNewSubscriber(user_uuid string) (string, *Subscriber) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//instead of making this, you will pass uuid from websocket
+	//instead of making this id, you will pass uuid from websocket
 	// id := fmt.Sprintf("%X-%X", b[0:4], b[4:8])
 	id := user_uuid
 	return id, &Subscriber{
