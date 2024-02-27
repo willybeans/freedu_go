@@ -164,3 +164,71 @@ func CreateChatPreviewsByUserID(userId string) ([]types.PreviewMessage, error) {
 	return messages, nil
 
 }
+
+func GetAllChatContentsByUserId(userId string) ([]types.UsersChats, error) {
+	l := logger.Get()
+
+	query := fmt.Sprintf(`
+	WITH user_chat_rooms AS (
+		SELECT
+			ucr.chat_room_id,
+			ucr.user_id
+		FROM
+			user_chatroom_xref ucr
+		WHERE
+			ucr.user_id = '%s'
+	),
+	messages_with_usernames AS (
+		SELECT
+			m.id AS message_id,
+			m.chat_room_id,
+			m.user_id,
+			m.content,
+			m.sent_at,
+			u.username AS sender_username
+		FROM
+			messages m
+			JOIN users u ON m.user_id = u.id
+	)
+	SELECT
+		ucr.chat_room_id,
+		cr.chat_name,
+		JSON_AGG(
+			JSON_BUILD_OBJECT(
+				'message_id', m.message_id,
+				'content', m.content,
+				'sent_at', m.sent_at,
+				'sender_username', m.sender_username
+			)
+		) AS chat_messages
+	FROM
+		user_chat_rooms ucr
+		JOIN chat_room cr ON ucr.chat_room_id = cr.id
+		LEFT JOIN messages_with_usernames m ON ucr.chat_room_id = m.chat_room_id
+	GROUP BY
+		ucr.chat_room_id,
+		cr.chat_name;
+	`, userId)
+
+	// Execute the query
+	rows, err := database.DB().Query(query)
+	if err != nil {
+		l.Error().Err(err).Msg("Error GetAllChatsByUserId Query")
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Process the results
+	var chatrooms []types.UsersChats
+	for rows.Next() {
+		var chatroom types.UsersChats
+		err := rows.Scan(&chatroom.Chatroom_ID, &chatroom.Chatroom_name, &chatroom.ChatMessages)
+		if err != nil {
+			l.Error().Err(err).Msg("Error GetAllChatsByUserId Scan")
+			return nil, err
+		}
+		chatrooms = append(chatrooms, chatroom)
+	}
+
+	return chatrooms, nil
+}
