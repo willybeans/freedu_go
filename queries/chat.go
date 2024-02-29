@@ -83,18 +83,27 @@ func GetChatRoomsByUserID(userId string) ([]types.ChatRoomXref, error) {
 func NewMessageForUserInChat(newMessage types.NewMessage) (types.Message, error) {
 	l := logger.Get()
 
-	// confirm user is allowed to write to this chat
 	var message types.Message
-	// if userCanWriteToChat(newMessage) {
-	query := database.DB().QueryRow("INSERT INTO messages (chat_room_id, user_id, content) VALUES ($1, $2, $3) RETURNING *", newMessage.ChatRoom_ID, newMessage.User_ID, newMessage.Content)
-	err := query.Scan(&message.ID, &message.ChatRoom_ID, &message.User_ID, &message.Content, &message.SentAt)
+	query := database.DB().QueryRow(`	
+	WITH new_m AS (
+		INSERT INTO messages (chat_room_id, user_id, content)
+		VALUES ($1, $2, $3)
+		RETURNING * )
+	SELECT
+		new_m.id,
+		new_m.chat_room_id,
+		new_m.user_id,
+		new_m.content,
+		new_m.sent_at,
+		users.username
+	FROM new_m JOIN users ON new_m.user_id = users.id`, newMessage.ChatRoom_ID, newMessage.User_ID, newMessage.Content)
+	err := query.Scan(&message.ID, &message.ChatRoom_ID, &message.User_ID, &message.Content, &message.SentAt, &message.Username)
 	if err != nil {
 		l.Error().Err(err).Msg("Error NewMessage on Scan")
 		return message, err
 	}
-	// }
-	return message, nil
 
+	return message, nil
 }
 
 func NewXrefForChatID(ids types.IdsForNewXref) (types.ChatRoomXref, error) {
@@ -185,7 +194,7 @@ func GetAllChatContentsByUserId(userId string) ([]types.UsersChats, error) {
 			m.user_id,
 			m.content,
 			m.sent_at,
-			u.username AS sender_username
+			u.username
 		FROM
 			messages m
 			JOIN users u ON m.user_id = u.id
@@ -198,7 +207,7 @@ func GetAllChatContentsByUserId(userId string) ([]types.UsersChats, error) {
 				'message_id', m.message_id,
 				'content', m.content,
 				'sent_at', m.sent_at,
-				'sender_username', m.sender_username
+				'username', m.username
 			)
 		) AS chat_messages
 	FROM
