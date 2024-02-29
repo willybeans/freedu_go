@@ -8,6 +8,9 @@ type WebSocketMessage struct {
 }
 
 type ResponseBody struct {
-	Message
+	SubscriptionID string      `json:"subscription_id"`
+	Content        interface{} `json:"content"`
+	// Message        Message      `json:"message"`
+	// UserChats      []UsersChats `json:"user_chats"`
 	Action string `json:"action"`
 }
