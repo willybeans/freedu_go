@@ -44,6 +44,7 @@ type PreviewMessage struct {
 type UsersChats struct {
 	Chatroom_ID   string          `json:"chat_room_id"`
 	Chatroom_name string          `json:"chat_name"`
+	Usernames     string          `json:"usernames"`
 	ChatMessages  json.RawMessage `json:"chat_messages"`
 }
 

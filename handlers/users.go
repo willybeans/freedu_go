@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+
 	"github.com/willybeans/freedu_go/database"
 )
 
@@ -22,17 +23,22 @@ type NewUser struct {
 }
 
 type User struct {
-	ID          string `json:"id"`
-	UserName    string `json:"username"`
-	Profile     string `json:"profile"`
-	TimeCreated string `json:"time_created"`
+	ID             string `json:"id"`
+	UserName       string `json:"username"`
+	Profile        string `json:"profile"`
+	Age            string `json:"age"`
+	Location       string `json:"location"`
+	NativeLanguage string `json:"native_language"`
+	TargetLanguage string `json:"target_language"`
+	LastOnline     string `json:"last_online"`
+	TimeCreated    string `json:"time_created"`
 }
 
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.URL.Query().Get("id")
 
 	var user User
-	err := database.DB().QueryRow("SELECT * FROM users WHERE id = $1", userId).Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated)
+	err := database.DB().QueryRow("SELECT * FROM users WHERE id = $1", userId).Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Age, &user.Location, &user.NativeLanguage, &user.LastOnline, &user.TargetLanguage)
 	if err == sql.ErrNoRows {
 		http.NotFound(w, r)
 		return
@@ -56,7 +62,7 @@ func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
 	userList := make([]User, 0)
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated)
+		err := rows.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Age, &user.Location, &user.NativeLanguage, &user.LastOnline, &user.TargetLanguage)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -76,7 +82,7 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user User
-	err := database.DB().QueryRow("INSERT INTO users (username) VALUES ($1) RETURNING *", newUser.UserName).Scan(&user.ID, &user.UserName, &user.TimeCreated)
+	err := database.DB().QueryRow("INSERT INTO users (username) VALUES ($1) RETURNING *", newUser.UserName).Scan(&user.ID, &user.UserName, &user.TimeCreated, &user.Age, &user.Location, &user.NativeLanguage, &user.LastOnline, &user.TargetLanguage)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -96,7 +102,7 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	var user User
 	query := database.DB().QueryRow("UPDATE users SET username = $1, profile = $2 WHERE id = $3 RETURNING *", updateUser.UserName, updateUser.Profile, updateUser.ID)
-	err := query.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated)
+	err := query.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Age, &user.Location, &user.NativeLanguage, &user.LastOnline, &user.TargetLanguage)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

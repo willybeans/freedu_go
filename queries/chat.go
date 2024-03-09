@@ -202,13 +202,15 @@ func GetAllChatContentsByUserId(userId string) ([]types.UsersChats, error) {
 	SELECT
 		ucr.chat_room_id,
 		cr.chat_name,
+		ARRAY(SELECT username FROM users WHERE id IN (SELECT user_id FROM user_chatroom_xref WHERE chat_room_id = ucr.chat_room_id)) AS usernames,
 		JSON_AGG(
 			JSON_BUILD_OBJECT(
 				'message_id', m.message_id,
 				'content', m.content,
 				'sent_at', m.sent_at,
-				'username', m.username
-			)
+				'username', m.username,
+				'user_id', m.user_id
+			) ORDER BY m.sent_at DESC
 		) AS chat_messages
 	FROM
 		user_chat_rooms ucr
@@ -231,7 +233,7 @@ func GetAllChatContentsByUserId(userId string) ([]types.UsersChats, error) {
 	var chatrooms []types.UsersChats
 	for rows.Next() {
 		var chatroom types.UsersChats
-		err := rows.Scan(&chatroom.Chatroom_ID, &chatroom.Chatroom_name, &chatroom.ChatMessages)
+		err := rows.Scan(&chatroom.Chatroom_ID, &chatroom.Chatroom_name, &chatroom.Usernames, &chatroom.ChatMessages)
 		if err != nil {
 			l.Error().Err(err).Msg("Error GetAllChatsByUserId Scan")
 			return nil, err

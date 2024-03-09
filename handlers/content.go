@@ -35,13 +35,16 @@ type Content struct {
 	Title       string `json:"title"`
 	BodyContent string `json:"body_content"`
 	TimeCreated string `json:"time_created"`
+	Description string `json:"description"`
+	Genre       string `json:"genre"`
+	LastOpened  string `json:"last_opened"`
 }
 
 func GetContentHandler(w http.ResponseWriter, r *http.Request) {
 	contentId := r.URL.Query().Get("id")
 
 	var content Content
-	err := database.DB().QueryRow("SELECT * FROM content WHERE id = $1", contentId).Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.TimeCreated)
+	err := database.DB().QueryRow("SELECT * FROM content WHERE id = $1", contentId).Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
 	if err == sql.ErrNoRows {
 		http.NotFound(w, r)
 		return
@@ -66,7 +69,34 @@ func GetAllContentHandler(w http.ResponseWriter, r *http.Request) {
 	contentList := make([]Content, 0)
 	for rows.Next() {
 		var content Content
-		err := rows.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.TimeCreated)
+		err := rows.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		contentList = append(contentList, content)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(contentList)
+}
+
+func GetAllContentByQueryHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("query")
+
+	// i like is not sql standard, but poor performance postgre extension
+	//https://stackoverflow.com/questions/7005302/how-to-make-case-insensitive-query-in-postgresql
+	rows, err := database.DB().Query("SELECT * FROM content WHERE body_content ILIKE '%' || $1 || '%' OR title ILIKE '%' || $1 || '%'", query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	contentList := make([]Content, 0)
+	for rows.Next() {
+		var content Content
+		err := rows.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -91,7 +121,7 @@ func GetAllUserContentHandler(w http.ResponseWriter, r *http.Request) {
 	contentList := make([]Content, 0)
 	for rows.Next() {
 		var content Content
-		err := rows.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.TimeCreated)
+		err := rows.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.TimeCreated, &content.Description, &content.LastOpened, &content.Genre)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -112,7 +142,7 @@ func NewContentHandler(w http.ResponseWriter, r *http.Request) {
 
 	var content Content
 	query := database.DB().QueryRow("INSERT INTO content (title, body_content, author_id) VALUES ($1, $2, $3) RETURNING *", newContent.Title, newContent.BodyContent, newContent.Author_ID)
-	err := query.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.TimeCreated)
+	err := query.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -131,7 +161,7 @@ func UpdateContentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// future: add user validation
 	var content Content
-	err := database.DB().QueryRow("UPDATE content SET title = $1, body_content = $2 WHERE id = $3 RETURNING *", updateContent.Title, updateContent.BodyContent, updateContent.ID).Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.TimeCreated)
+	err := database.DB().QueryRow("UPDATE content SET title = $1, body_content = $2 WHERE id = $3 RETURNING *", updateContent.Title, updateContent.BodyContent, updateContent.ID).Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
