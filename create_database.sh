@@ -29,13 +29,23 @@ SQL_CREATE_TABLE_USERS="CREATE TABLE users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   username VARCHAR(255) NOT NULL,
   profile TEXT NOT NULL,
+  age INTEGER,
+  location CHAR(2),
+  target_language CHAR(2),
+  native_language CHAR(2),
+  last_online TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   time_created TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );"
+# for content we need to add: type, icon, description,
+# for rating: https://stackoverflow.com/questions/2892705/how-do-i-model-product-ratings-in-the-database
 SQL_CREATE_TABLE_CONTENT="CREATE TABLE content (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   author_id UUID REFERENCES users(id),
   title VARCHAR(255) NOT NULL,
+  description VARCHAR(255),
+  genre VARCHAR(255),
   body_content TEXT,
+  last_opened TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   time_created TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );"
 SQL_CREATE_TABLE_SAVED_CONTENT="CREATE TABLE saved_content (
