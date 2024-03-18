@@ -38,7 +38,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.URL.Query().Get("id")
 
 	var user User
-	err := database.DB().QueryRow("SELECT * FROM users WHERE id = $1", userId).Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Age, &user.Location, &user.NativeLanguage, &user.LastOnline, &user.TargetLanguage)
+	err := database.DB().QueryRow("SELECT * FROM users WHERE id = $1", userId).Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Location, &user.NativeLanguage, &user.TargetLanguage, &user.Age, &user.LastOnline)
 	if err == sql.ErrNoRows {
 		http.NotFound(w, r)
 		return
@@ -62,7 +62,34 @@ func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
 	userList := make([]User, 0)
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Age, &user.Location, &user.NativeLanguage, &user.LastOnline, &user.TargetLanguage)
+		err := rows.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Location, &user.NativeLanguage, &user.TargetLanguage, &user.Age, &user.LastOnline)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		userList = append(userList, user)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(userList)
+}
+
+func GetAllUsersByQueryHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("query")
+
+	// i like is not sql standard, but poor performance postgre extension
+	//https://stackoverflow.com/questions/7005302/how-to-make-case-insensitive-query-in-postgresql
+	rows, err := database.DB().Query("SELECT * FROM users WHERE username ILIKE '%' || $1 || '%'", query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	userList := make([]User, 0)
+	for rows.Next() {
+		var user User
+		err := rows.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Location, &user.NativeLanguage, &user.TargetLanguage, &user.Age, &user.LastOnline)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -82,7 +109,7 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user User
-	err := database.DB().QueryRow("INSERT INTO users (username) VALUES ($1) RETURNING *", newUser.UserName).Scan(&user.ID, &user.UserName, &user.TimeCreated, &user.Age, &user.Location, &user.NativeLanguage, &user.LastOnline, &user.TargetLanguage)
+	err := database.DB().QueryRow("INSERT INTO users (username) VALUES ($1) RETURNING *", newUser.UserName).Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Location, &user.NativeLanguage, &user.TargetLanguage, &user.Age, &user.LastOnline)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -102,7 +129,7 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	var user User
 	query := database.DB().QueryRow("UPDATE users SET username = $1, profile = $2 WHERE id = $3 RETURNING *", updateUser.UserName, updateUser.Profile, updateUser.ID)
-	err := query.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Age, &user.Location, &user.NativeLanguage, &user.LastOnline, &user.TargetLanguage)
+	err := query.Scan(&user.ID, &user.UserName, &user.Profile, &user.TimeCreated, &user.Location, &user.NativeLanguage, &user.TargetLanguage, &user.Age, &user.LastOnline)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
