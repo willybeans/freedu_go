@@ -44,7 +44,16 @@ func GetContentHandler(w http.ResponseWriter, r *http.Request) {
 	contentId := r.URL.Query().Get("id")
 
 	var content Content
-	err := database.DB().QueryRow("SELECT * FROM content WHERE id = $1", contentId).Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
+	err := database.DB().QueryRow("SELECT * FROM content WHERE id = $1", contentId).Scan(
+		&content.Content_ID,
+		&content.Author_ID,
+		&content.Title,
+		&content.BodyContent,
+		&content.TimeCreated,
+		&content.Description,
+		&content.Genre,
+		&content.LastOpened,
+	)
 	if err == sql.ErrNoRows {
 		http.NotFound(w, r)
 		return
@@ -69,7 +78,16 @@ func GetAllContentHandler(w http.ResponseWriter, r *http.Request) {
 	contentList := make([]Content, 0)
 	for rows.Next() {
 		var content Content
-		err := rows.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
+		err := rows.Scan(
+			&content.Content_ID,
+			&content.Author_ID,
+			&content.Title,
+			&content.BodyContent,
+			&content.TimeCreated,
+			&content.Description,
+			&content.Genre,
+			&content.LastOpened,
+		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -96,7 +114,16 @@ func GetAllContentByQueryHandler(w http.ResponseWriter, r *http.Request) {
 	contentList := make([]Content, 0)
 	for rows.Next() {
 		var content Content
-		err := rows.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
+		err := rows.Scan(
+			&content.Content_ID,
+			&content.Author_ID,
+			&content.Title,
+			&content.BodyContent,
+			&content.TimeCreated,
+			&content.Description,
+			&content.Genre,
+			&content.LastOpened,
+		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -121,7 +148,15 @@ func GetAllUserContentHandler(w http.ResponseWriter, r *http.Request) {
 	contentList := make([]Content, 0)
 	for rows.Next() {
 		var content Content
-		err := rows.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.TimeCreated, &content.Description, &content.LastOpened, &content.Genre)
+		err := rows.Scan(
+			&content.Content_ID,
+			&content.Author_ID,
+			&content.Title,
+			&content.BodyContent,
+			&content.TimeCreated,
+			&content.Description,
+			&content.Genre,
+			&content.LastOpened)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -142,7 +177,15 @@ func NewContentHandler(w http.ResponseWriter, r *http.Request) {
 
 	var content Content
 	query := database.DB().QueryRow("INSERT INTO content (title, body_content, author_id) VALUES ($1, $2, $3) RETURNING *", newContent.Title, newContent.BodyContent, newContent.Author_ID)
-	err := query.Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
+	err := query.Scan(
+		&content.Content_ID,
+		&content.Author_ID,
+		&content.Title,
+		&content.BodyContent,
+		&content.TimeCreated,
+		&content.Description,
+		&content.Genre,
+		&content.LastOpened)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -161,7 +204,16 @@ func UpdateContentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// future: add user validation
 	var content Content
-	err := database.DB().QueryRow("UPDATE content SET title = $1, body_content = $2 WHERE id = $3 RETURNING *", updateContent.Title, updateContent.BodyContent, updateContent.ID).Scan(&content.Content_ID, &content.Author_ID, &content.Title, &content.BodyContent, &content.Description, &content.Genre, &content.LastOpened, &content.TimeCreated)
+	query := database.DB().QueryRow("UPDATE content SET title = $1, body_content = $2 WHERE id = $3 RETURNING *", updateContent.Title, updateContent.BodyContent, updateContent.ID)
+	err := query.Scan(
+		&content.Content_ID,
+		&content.Author_ID,
+		&content.Title,
+		&content.BodyContent,
+		&content.TimeCreated,
+		&content.Description,
+		&content.Genre,
+		&content.LastOpened)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
